@@ -44,8 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILoadLog.cs" />
     <Compile Include="IOutputMap.cs" />
-    <Compile Include="IAllowPreviews.cs" />
     <Compile Include="IDataSource.cs" />
     <Compile Include="IOutputRule.cs" />
     <Compile Include="ITableStructuredDataSource.cs" />
@@ -55,6 +55,7 @@
     <Compile Include="LogLevel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlQueryDataSource.cs" />
+    <Compile Include="TableStructuredDataSource.cs" />
     <Compile Include="TimeHelpers.cs" />
   </ItemGroup>
   <ItemGroup>

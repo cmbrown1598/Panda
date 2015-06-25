@@ -31,8 +31,6 @@ namespace Panda.Core.Tests
             var result = systemUnderTest.LoadData();
 
             Assert.That(result, Is.True, systemUnderTest.GetLoadingLog().ToString());
-
-            Assert.That(systemUnderTest.DataSourceIdentifier, Is.Not.EqualTo(Guid.Empty));
             Assert.That(systemUnderTest.LastLoadDate.Value.ToDateTimeUnspecified(), Is.GreaterThanOrEqualTo(DateTime.Now.Subtract(new TimeSpan(0, 0, 10, 0))));
             Assert.That(systemUnderTest.CreatedBy, Is.Not.Empty);
 
@@ -47,6 +45,10 @@ namespace Panda.Core.Tests
 
             var loadinglog = systemUnderTest.GetLoadingLog();
             Assert.That(loadinglog, Is.Not.Empty);
+
+            systemUnderTest.ApproximateSizeInBytes();
+
+            Console.Write(loadinglog);
 
         }
     }

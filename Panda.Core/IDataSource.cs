@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using NodaTime;
 
 namespace Panda
@@ -8,11 +7,15 @@ namespace Panda
     {
         Guid DataSourceIdentifier { get; }
         string Name { get; }
+
+        bool LoadPreview();
         bool LoadData();
+
         string CreatedBy { get; }
         ZonedDateTime? LastLoadDate { get; }
         LoadState State { get; }
+        ILoadLog GetLoadingLog();
 
-        IEnumerable<LoadLogItem> GetLoadingLog();
+        long ApproximateSizeInBytes();
     }
 }

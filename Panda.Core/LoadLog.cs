@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Panda
 {
-    public class LoadLog : List<LoadLogItem>
+    public class LoadLog : List<LoadLogItem>, ILoadLog
     {
         public void Info(string text)
         {
@@ -34,7 +35,7 @@ namespace Panda
             var sb = new StringBuilder();
             ForEach(a =>
             {
-                sb.AppendFormat("{0} {1} {2}{3}", a.LogDate, a.Level, a.Text, Environment.NewLine);
+                sb.AppendFormat("{0}|{1}|{2}{3}", a.LogDate.ToString("F", CultureInfo.InvariantCulture), a.Level.ToString().ToUpper(), a.Text, Environment.NewLine);
             });
             return sb.ToString();
         }

@@ -1,139 +1,99 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Odbc;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Security.Principal;
-using NodaTime;
 
 namespace Panda
 {
-    public class SqlQueryDataSource : ITableStructuredDataSource
+
+    public class SqlQueryDataSource : TableStructuredDataSource
     {
-        private string _name;
-        private LoadLog _log = new LoadLog();
-
-        public SqlQueryDataSource()
-        {
-            DataSourceIdentifier = Guid.NewGuid();
-            
-            var windowsIdentity = WindowsIdentity.GetCurrent();
-            if (windowsIdentity != null) CreatedBy = windowsIdentity.Name;
-
-            State = LoadState.NotLoaded;
-        }
-
         public string ConnectionString { get; set; }
         public string SqlCommandText { get; set; }
         public CommandType CommandType { get; set; }
-        public Guid DataSourceIdentifier { get; set; }
 
-        public string Name
+
+        public override bool SettingsAreValid()
         {
-            get { return _name ?? (_name = SqlCommandText); }
-            set { _name = value; }
+            // not the most secure, but workable for now.
+
+            return !(string.IsNullOrEmpty(ConnectionString) | string.IsNullOrEmpty(SqlCommandText));
         }
 
-        public bool LoadData()
+        public override string Name
         {
-            try
+            get { return base.Name ?? (base.Name = SqlCommandText); }
+            set { base.Name = value; }
+        }
+
+        private bool DoDataLoad(string sqlCommand)
+        {
+            Log.Info("Attempting to connect to database with connection string: {0}", ConnectionString);
+            using (var sqlConnection = new SqlConnection(ConnectionString))
             {
-                _log.Info("Attempting to connect to database with connection string: {0}", ConnectionString);
-                using (var sqlConnection = new SqlConnection(ConnectionString))
+                sqlConnection.Open();
+
+                Log.Info("Connection open");
+
+                using (var scCommand = new SqlCommand(sqlCommand, sqlConnection))
                 {
-                    sqlConnection.Open();
-                
-                    _log.Info("Connection open");    
+                    scCommand.CommandType = CommandType;
+                    scCommand.Prepare();
 
-                    using (var scCommand = new SqlCommand(SqlCommandText, sqlConnection))
+                    Log.Info("Command prepared. {0}", SqlCommandText);
+
+                    Data = new DataTable(Name);
+
+                    using (var reader = scCommand.ExecuteReader(CommandBehavior.CloseConnection))
                     {
-                        scCommand.CommandType = CommandType;
-                        scCommand.Prepare();
-                        
-                        _log.Info("Command prepared. {0}", SqlCommandText);    
+                        Log.Info("Command executed.");
 
-                        Data = new DataTable(Name);
+                        var fieldCount = reader.FieldCount;
 
-                        using (var reader = scCommand.ExecuteReader(CommandBehavior.CloseConnection))
+                        Log.Info("Loading columns.");
+
+                        for (var i = 0; i < fieldCount; i++)
                         {
-                            _log.Info("Command executed.");    
+                            var columnName = reader.GetName(i);
+                            var dataType = reader.GetFieldType(i);
+                            Log.Info("Loading column '{0}', data type '{1}'.", columnName, dataType != null ? dataType.Name : "unknown");
+                            Data.Columns.Add(dataType != null
+                                ? new DataColumn(columnName, dataType)
+                                : new DataColumn(columnName));
 
-                            var fieldCount = reader.FieldCount;
-                            var columnNames = new List<string>();
-                            _log.Info("Reading columns.");    
+                        }
+                        Log.Info("Loading data.");
+
+                        while (reader.Read())
+                        {
+                            var dataRow = Data.NewRow();
+
                             for (var i = 0; i < fieldCount; i++)
                             {
-                                var columnName = reader.GetName(i);
-                                var dataType = reader.GetFieldType(i);
-                                columnNames.Add(columnName);
-
-                                Data.Columns.Add(dataType != null
-                                    ? new DataColumn(columnName, dataType)
-                                    : new DataColumn(columnName));
-
+                                var columnName = Data.Columns[i].ColumnName;
+                                dataRow[columnName] = reader[columnName];
                             }
-                            _log.Info("Loading data.");   
-                            while(reader.Read())
-                            {
-                                var dataRow = Data.NewRow();
-
-                                foreach (var columnName in columnNames)
-                                {
-                                    dataRow[columnName] = reader[columnName];
-                                }
-                                Data.Rows.Add(dataRow);
-                            }
-
-                            _log.Info("Data load complete. {0} rows loaded.", RowCount);   
-
-                            Columns = columnNames.ToArray();
+                            Data.Rows.Add(dataRow);
                         }
+
+                        Log.Info("Data load complete. {0} rows loaded.", Data.Rows.Count);
                     }
-                    _log.Info("Closing connection.");   
-                    sqlConnection.Close();
                 }
-                
-                LastLoadDate = TimeHelpers.NowInLocalTime();
-                State = LoadState.Loaded;
-                _log.Info("Load completed");   
-                return true;
+                Log.Info("Closing connection.");
+                sqlConnection.Close();
             }
-            catch (Exception exception)
-            {
-                _log.Error("Exception occured!! Stack trace of error follows:");
-                _log.Error(exception);   
-
-                State = LoadState.Errored;
-
-                return false;
-            }
+            return true;
         }
 
-        public string CreatedBy { get; set; }
-        public ZonedDateTime? LastLoadDate { get; set; }
-        public LoadState State { get; private set; }
-        
-        public IEnumerable<LoadLogItem> GetLoadingLog()
+        protected override bool Preview()
         {
-            return _log;
+            var sqlText = string.Format("SELECT TOP 0.01 PERCENT alpha.* FROM ({0}) as alpha", SqlCommandText);
+
+            return DoDataLoad(sqlText);
         }
 
-        public string[] Columns { get; set; }
-        public int? RowCount {
-            get
-            {
-                switch (State)
-                {
-                    case LoadState.Loaded: 
-                    case LoadState.PreviewLoaded:
-                        return Data.Rows.Count;
-                    default:
-                        return null;
-                }
-
-            }
+        protected override bool Load()
+        {
+            return DoDataLoad(SqlCommandText);
         }
 
-        public DataTable Data { get; private set; }
     }
 }
