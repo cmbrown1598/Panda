@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelFileDataSource.cs" />
     <Compile Include="ILoadLog.cs" />
     <Compile Include="IOutputMap.cs" />
     <Compile Include="IDataSource.cs" />

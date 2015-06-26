@@ -53,7 +53,11 @@ namespace Panda
             try
             {
                 if (!SettingsAreValid())
+                {
+                    _log.Error("Cannot load. Settings are not valid.");
                     return false;
+                }
+                
                 loadAction();
                 LastLoadDate = TimeHelpers.NowInLocalTime();
                 return true;

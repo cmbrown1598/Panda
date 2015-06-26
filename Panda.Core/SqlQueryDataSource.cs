@@ -3,7 +3,6 @@ using System.Data.SqlClient;
 
 namespace Panda
 {
-
     public class SqlQueryDataSource : TableStructuredDataSource
     {
         public string ConnectionString { get; set; }
@@ -14,8 +13,16 @@ namespace Panda
         public override bool SettingsAreValid()
         {
             // not the most secure, but workable for now.
+            if (string.IsNullOrEmpty(ConnectionString))
+            {
+                Log.Error("Connection String was null or empty.");
+                return false;
+            }
 
-            return !(string.IsNullOrEmpty(ConnectionString) | string.IsNullOrEmpty(SqlCommandText));
+            if (!string.IsNullOrEmpty(SqlCommandText)) return true;
+            
+            Log.Error("Command text was null or empty.");
+            return false;
         }
 
         public override string Name
