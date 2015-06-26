@@ -79,23 +79,8 @@ namespace Panda
                 Log.Info("Connection open");
 
                 var adapter = new OleDbDataAdapter(sqlCommand, connection);
-
+                LoadFromDataAdapter(adapter);
                 Log.Info("Command prepared. {0}", SqlCommandText);
-
-                Data = new DataTable(Name);
-                adapter.Fill(Data);
-
-                Log.Info("Data loaded.");
-
-                for (var i = 0; i < Data.Columns.Count; i++)
-                {
-                    var columnName = Data.Columns[i].ColumnName;
-                    var dataType = Data.Columns[i].DataType;
-                    Log.Info("Loaded column '{0}', data type '{1}'.", columnName, dataType != null ? dataType.Name : "unknown");
-
-                }
-                
-                Log.Info("Data load complete. {0} rows loaded.", Data.Rows.Count);
 
                 Log.Info("Closing connection.");
                 connection.Close();

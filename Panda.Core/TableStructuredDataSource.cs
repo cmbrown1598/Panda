@@ -32,6 +32,27 @@ namespace Panda
         public virtual string Name { get; set; }
 
 
+        protected void LoadFromDataAdapter(IDataAdapter dataAdapter)
+        {
+            var dataSet = new DataSet();
+            dataAdapter.Fill(dataSet);
+            Data = dataSet.Tables[0];
+
+            Log.Info("Data loaded.");
+
+            for (var i = 0; i < Data.Columns.Count; i++)
+            {
+                var columnName = Data.Columns[i].ColumnName;
+                var dataType = Data.Columns[i].DataType;
+                Log.Info("Loaded column '{0}', data type '{1}'.", columnName, dataType != null ? dataType.Name : "unknown");
+
+            }
+
+            Log.Info("Data load complete. {0} rows loaded.", Data.Rows.Count);
+
+        }
+
+
         public virtual bool SettingsAreValid()
         {
             Log.Error("Base implementation does not contain settings, and should be overriden. Bad programmer, no biscuit.");
