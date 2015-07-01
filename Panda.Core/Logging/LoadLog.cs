@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Panda
+namespace Panda.Logging
 {
     public class LoadLog : List<LoadLogItem>, ILoadLog
     {

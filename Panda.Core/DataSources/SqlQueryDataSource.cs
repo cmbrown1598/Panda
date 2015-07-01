@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 
-namespace Panda
+namespace Panda.DataSources
 {
     public class SqlQueryDataSource : TableStructuredDataSource
     {

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NodaTime;
+﻿using NodaTime;
 
-namespace Panda
+namespace Panda.Logging
 {
     public class LoadLogItem
     {

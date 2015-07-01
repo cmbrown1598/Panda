@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using NUnit.Framework;
+using Panda.DataSources;
 
 namespace Panda.Core.Tests
 {
@@ -16,7 +17,7 @@ namespace Panda.Core.Tests
             {
                 FileName = dataFileName,
                 Worksheet = "Beers",
-                ColumnNamesInHeader = true
+                FirstRowAsColumnNames = true
             };
 
             Assert.That(systemUnderTest.State, Is.EqualTo(LoadState.NotLoaded));

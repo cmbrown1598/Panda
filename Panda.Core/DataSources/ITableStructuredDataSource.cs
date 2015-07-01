@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+﻿using System.Data;
 
-namespace Panda
+namespace Panda.DataSources
 {
     public interface ITableStructuredDataSource : IDataSource
     {
+        bool SettingsAreValid();
         string[] Columns { get; }
         int? RowCount { get; }
 

@@ -1,4 +1,4 @@
-﻿namespace Panda
+﻿namespace Panda.Logging
 {
     public enum LogLevel
     {

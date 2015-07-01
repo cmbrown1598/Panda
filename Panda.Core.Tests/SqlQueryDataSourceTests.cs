@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NodaTime;
 using NUnit.Framework;
+using Panda.DataSources;
 
 namespace Panda.Core.Tests
 {

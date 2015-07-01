@@ -1,23 +1,21 @@
 ﻿using System.Collections.Generic;
-using System.Data;
-using System.Data.Odbc;
 using System.Data.OleDb;
 using System.Globalization;
 using System.IO;
 
-namespace Panda
+namespace Panda.DataSources
 {
     public class ExcelFileDataSource : TableStructuredDataSource
     {
         public string FileName { get; set; }
         public string Worksheet { get; set; }
-        public bool ColumnNamesInHeader { get; set; }
+        public bool FirstRowAsColumnNames { get; set; }
 
         private string ConnectionString {
             get
             {
                 var extension = Path.GetExtension(FileName).ToUpper(CultureInfo.InvariantCulture);
-                return string.Format(MapOfFileExtensionToConnectionStrings[extension], FileName, ColumnNamesInHeader);
+                return string.Format(MapOfFileExtensionToConnectionStrings[extension], FileName, FirstRowAsColumnNames);
             }
         }
 

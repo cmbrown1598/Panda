@@ -1,13 +1,12 @@
 using System;
 using System.Data;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Principal;
 using NodaTime;
+using Panda.Logging;
 
-namespace Panda
+namespace Panda.DataSources
 {
     public class TableStructuredDataSource : ITableStructuredDataSource
     {
